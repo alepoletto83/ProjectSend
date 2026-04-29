@@ -19,6 +19,8 @@ Atingir as seguintes metas de escalada:
 ## Equipamento disponível
 
 - Mini Moonboard 2025 (garagem)
+- Beastmaker 1000 (hangboard)
+- Tension Block (pickups do chão)
 - Kettlebell até 40lbs
 - 2x Dumbbells até 27lbs cada
 - Acesso ao Ground Up (Squamish)
