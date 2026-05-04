@@ -25,7 +25,10 @@
 # Database (SQLite local — single user)
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
+/data/
 
 # Logs
 *.log
