@@ -1,3 +1,5 @@
+import { createSession } from '../actions';
+
 export default function NewSessionPage() {
   const today = new Date().toISOString().slice(0, 10);
 
@@ -5,7 +7,7 @@ export default function NewSessionPage() {
     <main className="mx-auto max-w-xl p-6">
       <h1 className="text-2xl font-semibold mb-6">Nova sessão</h1>
 
-      <form className="flex flex-col gap-4">
+      <form action={createSession} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1">
           <span className="text-sm">Data</span>
           <input
@@ -83,8 +85,7 @@ export default function NewSessionPage() {
 
         <button
           type="submit"
-          className="bg-black text-white rounded px-4 py-2 mt-2"
-        >
+          className="bg-black text-white rounded px-4 py-2 mt-2">
           Salvar
         </button>
       </form>
