@@ -1,25 +1,8 @@
 import Link from 'next/link';
-import { db } from '@/lib/db';
-
-type Session = {
-  id: number;
-  date: string;
-  type: string;
-  location: string | null;
-  duration_min: number | null;
-  rpe: number | null;
-  completion_pct: number | null;
-  notes: string | null;
-};
+import { listSessions } from '@/lib/sessions';
 
 export default function SessionPage() {
-  const rows = db
-    .prepare(
-      `SELECT id, date, type, location, duration_min, rpe, completion_pct, notes
-       FROM sessions
-       ORDER BY date DESC, id DESC`,
-    )
-    .all() as Session[];
+  const rows = listSessions();
 
   return (
     <main className="mx-auto max-w-3xl p-6">
@@ -50,7 +33,11 @@ export default function SessionPage() {
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-b last:border-b-0">
-                <td className="py-2 pr-4">{row.date}</td>
+                <td className="py-2 pr-4">
+                  <Link href={`/sessions/${row.id}`} className="underline">
+                    {row.date}
+                  </Link>
+                </td>
                 <td className="pr-4">{row.type}</td>
                 <td className="pr-4">{row.location ?? '—'}</td>
                 <td className="pr-4">{row.duration_min ?? '—'}</td>

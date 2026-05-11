@@ -1,37 +1,7 @@
-// =============================================================================
-// Página: /sessions/[id]  (detalhe de uma sessão)
-// =============================================================================
-// Conceitos novos:
-//
-//   1. Segmento dinâmico: a pasta `[id]` vira um parâmetro de rota.
-//      URL /sessions/42  →  params = { id: "42" }
-//      O `id` SEMPRE chega como string (vem da URL).
-//
-//   2. No Next 16, `params` é uma `Promise<{ id: string }>` — precisa
-//      `await`. Em versões antigas era um objeto síncrono; mudaram pra
-//      permitir streaming/parallel rendering. Por isso o componente tem
-//      que ser `async`.
-//
-//   3. notFound() de "next/navigation": quando a sessão não existe,
-//      chame essa função. Ela LANÇA uma exceção que o Next captura e
-//      renderiza um 404. Não precisa de `return notFound()` — o tipo
-//      é `never`, TS entende.
-// =============================================================================
-
 import Link from 'next/link';
-import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
-
-type Session = {
-  id: number;
-  date: string;
-  type: string;
-  location: string | null;
-  duration_min: number | null;
-  rpe: number | null;
-  completion_pct: number | null;
-  notes: string | null;
-};
+import { deleteSession } from '../actions';
+import { getSession } from '@/lib/sessions';
 
 export default async function SessionDetailPage({
   params,
@@ -42,14 +12,7 @@ export default async function SessionDetailPage({
   const idNum = Number(id);
   if (Number.isNaN(idNum)) notFound();
 
-  const session = db
-    .prepare(
-      `SELECT id, date, type, location, duration_min, rpe, completion_pct, notes
-       FROM sessions
-       WHERE id = ?`,
-    )
-    .get(idNum) as Session | undefined;
-
+  const session = getSession(idNum);
   if (!session) notFound();
 
   return (
@@ -81,6 +44,24 @@ export default async function SessionDetailPage({
         <dt className="text-zinc-500">Notas</dt>
         <dd className="whitespace-pre-wrap">{session.notes ?? '—'}</dd>
       </dl>
+
+      <div className="flex gap-2 mt-6">
+        <Link
+          href={`/sessions/${session.id}/edit`}
+          className="bg-black text-white rounded px-4 py-2"
+        >
+          Editar
+        </Link>
+
+        <form action={deleteSession}>
+          <input type="hidden" name="id" value={session.id} />
+          <button
+            type="submit"
+            className="bg-red-600 text-white rounded px-4 py-2">
+            Excluir sessão
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
