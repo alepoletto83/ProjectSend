@@ -1,8 +1,15 @@
 import Link from 'next/link';
 import { listSessions } from '@/lib/sessions';
 
-export default function SessionPage() {
-  const rows = listSessions();
+const TYPES = ['climb', 'hangboard', 'strength', 'mobility', 'bjj', 'rest'];
+
+export default async function SessionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type } = await searchParams;
+  const rows = listSessions({ type });
 
   return (
     <main className="mx-auto max-w-3xl p-6">
@@ -13,6 +20,24 @@ export default function SessionPage() {
           className="bg-black text-white rounded px-3 py-2 text-sm">
           Nova sessão
         </Link>
+      </div>
+
+      <div className="flex gap-3 mb-4 text-sm">
+        <Link
+          href="/sessions"
+          className={!type ? 'font-bold underline' : 'text-zinc-500'}
+        >
+          Todos
+        </Link>
+        {TYPES.map((t) => (
+          <Link
+            key={t}
+            href={`/sessions?type=${t}`}
+            className={type === t ? 'font-bold underline' : 'text-zinc-500'}
+          >
+            {t}
+          </Link>
+        ))}
       </div>
 
       {rows.length === 0 ? (
