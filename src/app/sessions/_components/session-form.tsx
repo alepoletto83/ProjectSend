@@ -1,20 +1,44 @@
-import { Session } from '@/lib/sessions';
+'use client';
+
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import type { FormState } from '../actions';
+import type { Session } from '@/lib/sessions';
 
 type Props = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (prev: FormState | null, formData: FormData) => Promise<FormState>;
   defaults?: Partial<Session>;
   submitLabel?: string;
 };
+
+function SubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="bg-black text-white rounded px-4 py-2 mt-2 disabled:opacity-50"
+    >
+      {pending ? 'Salvando...' : label}
+    </button>
+  );
+}
 
 export function SessionForm({
   action,
   defaults,
   submitLabel = 'Salvar',
 }: Props) {
+  const [state, formAction] = useActionState(action, null);
   const today = new Date().toISOString().slice(0, 10);
+  const errors = state?.errors;
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-4">
+      {errors?._form && (
+        <p className="text-sm text-red-600">{errors._form}</p>
+      )}
+
       {defaults?.id != null && (
         <input type="hidden" name="id" value={defaults.id} />
       )}
@@ -25,9 +49,11 @@ export function SessionForm({
           type="date"
           name="date"
           defaultValue={defaults?.date ?? today}
-          required
           className="border rounded px-3 py-2"
         />
+        {errors?.date && (
+          <span className="text-xs text-red-600">{errors.date}</span>
+        )}
       </label>
 
       <label className="flex flex-col gap-1">
@@ -35,8 +61,8 @@ export function SessionForm({
         <select
           name="type"
           defaultValue={defaults?.type ?? 'climb'}
-          required
-          className="border rounded px-3 py-2">
+          className="border rounded px-3 py-2"
+        >
           <option value="climb">climb</option>
           <option value="hangboard">hangboard</option>
           <option value="strength">strength</option>
@@ -44,6 +70,9 @@ export function SessionForm({
           <option value="bjj">bjj</option>
           <option value="rest">rest</option>
         </select>
+        {errors?.type && (
+          <span className="text-xs text-red-600">{errors.type}</span>
+        )}
       </label>
 
       <label className="flex flex-col gap-1">
@@ -51,7 +80,8 @@ export function SessionForm({
         <select
           name="location"
           defaultValue={defaults?.location ?? ''}
-          className="border rounded px-3 py-2">
+          className="border rounded px-3 py-2"
+        >
           <option value="">—</option>
           <option value="home">home</option>
           <option value="groundup">groundup</option>
@@ -105,11 +135,7 @@ export function SessionForm({
         />
       </label>
 
-      <button
-        type="submit"
-        className="bg-black text-white rounded px-4 py-2 mt-2">
-        {submitLabel}
-      </button>
+      <SubmitButton label={submitLabel} />
     </form>
   );
 }
